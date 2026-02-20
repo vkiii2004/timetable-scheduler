@@ -1,0 +1,84 @@
+{
+  "years": {
+    "SE": {
+      "divisions": {
+        "A": {
+          "subjects": ["DSA", "OOP", "DBMS", "TOC"],
+          "labs": ["SE Lab", "DBMS Lab"],
+          "teachers": ["T1", "T2", "T6"]
+        },
+        "B": {
+          "subjects": ["DSA", "OOP", "CN", "OS"],
+          "labs": ["SE Lab", "CN Lab"],
+          "teachers": ["T1", "T3", "T4"]
+        },
+        "C": {
+          "subjects": ["DSA", "DBMS", "OS", "WT"],
+          "labs": ["DBMS Lab", "WT Lab"],
+          "teachers": ["T1", "T2", "T4", "T5"]
+        }
+      }
+    },
+    "TE": {
+      "divisions": {
+        "A": {
+          "subjects": ["CN", "OS", "WT", "ML"],
+          "labs": ["CN Lab", "WT Lab", "ML Lab"],
+          "teachers": ["T3", "T4", "T5", "T7"]
+        },
+        "B": {
+          "subjects": ["OS", "AI", "ML", "Cloud"],
+          "labs": ["OS Lab", "AI Lab"],
+          "teachers": ["T4", "T7", "T8", "T9"]
+        },
+        "C": {
+          "subjects": ["CN", "WT", "AI", "DA"],
+          "labs": ["CN Lab", "WT Lab", "DA Lab"],
+          "teachers": ["T3", "T5", "T8", "T10"]
+        }
+      }
+    },
+    "BE": {
+      "divisions": {
+        "A": {
+          "subjects": ["Cloud Computing", "Software Testing", "Project"],
+          "labs": ["DA Lab", "Project"],
+          "teachers": ["T9", "T11", "T13"]
+        },
+        "B": {
+          "subjects": ["Data Analytics", "Compiler Design", "Project"],
+          "labs": ["DA Lab", "Project"],
+          "teachers": ["T10", "T12", "T13"]
+        }
+      }
+    }
+  },
+  "teachers": {
+    "T1": {"name": "Prof. A. Deshmukh", "subjects": ["DSA", "OOP", "SE Lab"], "max_load": 12},
+    "T2": {"name": "Prof. P. Kulkarni", "subjects": ["DBMS", "DBMS Lab"], "max_load": 10},
+    "T3": {"name": "Prof. R. Patil", "subjects": ["Computer Networks", "CN Lab"], "max_load": 10},
+    "T4": {"name": "Prof. S. Jadhav", "subjects": ["Operating Systems", "OS Lab"], "max_load": 12},
+    "T5": {"name": "Prof. N. Pawar", "subjects": ["Web Technology", "WT Lab"], "max_load": 10},
+    "T6": {"name": "Prof. V. Mane", "subjects": ["Theory of Computation"], "max_load": 8},
+    "T7": {"name": "Prof. K. Joshi", "subjects": ["Machine Learning", "ML Lab"], "max_load": 12},
+    "T8": {"name": "Prof. B. Shinde", "subjects": ["Artificial Intelligence", "AI Lab"], "max_load": 10},
+    "T9": {"name": "Prof. R. Ghodke", "subjects": ["Cloud Computing"], "max_load": 8},
+    "T10": {"name": "Prof. S. Rane", "subjects": ["Data Analytics", "DA Lab"], "max_load": 10},
+    "T11": {"name": "Prof. P. Bhagat", "subjects": ["Software Testing"], "max_load": 8},
+    "T12": {"name": "Prof. D. Naik", "subjects": ["Compiler Design"], "max_load": 8},
+    "T13": {"name": "Prof. H. Salunkhe", "subjects": ["Project"], "max_load": 4}
+  },
+  "labs": {
+    "SE Lab": {"duration": 2, "batch_size": 20, "linked_subject": "OOP/DSA", "teacher": "T1"},
+    "DBMS Lab": {"duration": 2, "batch_size": 20, "linked_subject": "DBMS", "teacher": "T2"},
+    "CN Lab": {"duration": 2, "batch_size": 20, "linked_subject": "Computer Networks", "teacher": "T3"},
+    "OS Lab": {"duration": 2, "batch_size": 20, "linked_subject": "Operating Systems", "teacher": "T4"},
+    "WT Lab": {"duration": 2, "batch_size": 20, "linked_subject": "Web Technology", "teacher": "T5"},
+    "ML Lab": {"duration": 2, "batch_size": 20, "linked_subject": "Machine Learning", "teacher": "T7"},
+    "AI Lab": {"duration": 2, "batch_size": 20, "linked_subject": "Artificial Intelligence", "teacher": "T8"},
+    "DA Lab": {"duration": 2, "batch_size": 20, "linked_subject": "Data Analytics", "teacher": "T10"},
+    "Project": {"duration": 3, "batch_size": 25, "linked_subject": "Final Year Project", "teacher": "T13"}
+  }
+}
+
+
