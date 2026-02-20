@@ -1,16 +1,14 @@
 {
   "name": "timetable-scheduler",
   "version": "1.0.0",
+  "engine": {
+    "node": ">=14.0.0"
+  },
   "description": "A comprehensive timetable scheduler using MERN stack",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon server.js",
-    "client": "cd client && npm start",
-    "build": "cd client && npm run build",
-    "install-client": "cd client && npm install",
-    "heroku-postbuild": "npm run install-client && npm run build",
     "import-excel": "node scripts/importExcel.js",
     "reset-db": "node scripts/resetDb.js",
     "import-json": "node scripts/importJson.js"
