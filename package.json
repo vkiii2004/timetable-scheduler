@@ -1,7 +1,7 @@
 {
   "name": "timetable-scheduler",
   "version": "1.0.0",
-  "engine": {
+  "engines": {
     "node": "18.x"
   },
   "description": "A comprehensive timetable scheduler using MERN stack",
