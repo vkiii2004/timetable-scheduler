@@ -11,7 +11,8 @@
     "server": "nodemon server.js",
     "import-excel": "node scripts/importExcel.js",
     "reset-db": "node scripts/resetDb.js",
-    "import-json": "node scripts/importJson.js"
+    "import-json": "node scripts/importJson.js",
+    "fix-room-numbers": "node scripts/fixRoomNumbers.js"
   },
   "keywords": ["timetable", "scheduler", "mern", "education"],
   "author": "Your Name",

@@ -9,6 +9,29 @@ const Lab = require('../models/Lab');
 const TimeSlot = require('../models/TimeSlot');
 const { body, validationResult } = require('express-validator');
 
+const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
+function isBESection(section) {
+  if (!section) return false;
+  const sectionName = typeof section.sectionName === 'string' ? section.sectionName.trim().toUpperCase() : '';
+  const department = typeof section.department === 'string' ? section.department.trim().toUpperCase() : '';
+  return sectionName.startsWith('BE') || department === 'BE' || section.year === 4;
+}
+
+function normalizeWeekday(dayValue) {
+  if (typeof dayValue !== 'string') return null;
+  const input = dayValue.trim().toLowerCase();
+  return WEEKDAYS.find((day) => day.toLowerCase() === input) || null;
+}
+
+function formatSectionLabel(sectionName) {
+  if (typeof sectionName !== 'string') return '';
+  const value = sectionName.trim();
+  const match = value.match(/^([A-Za-z]+)[-\s]?([A-Za-z0-9]+)$/);
+  if (!match) return value;
+  return `${match[1].toUpperCase()}(${match[2].toUpperCase()})`;
+}
+
 // Get all timetables
 router.get('/', async (req, res) => {
   try {
@@ -21,6 +44,86 @@ router.get('/', async (req, res) => {
       .populate('schedule.timeSlot');
     res.json(timetables);
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get BE classes timetable entries for Monday-Friday by timetable ID
+router.get('/:id/BE', async (req, res) => {
+  try {
+    const timetable = await Timetable.findById(req.params.id)
+      .populate('sections')
+      .populate('schedule.teacher', 'name email')
+      .populate('schedule.section', 'sectionName department year semester')
+      .populate('schedule.room', 'roomNumber roomName')
+      .populate('schedule.lab', 'labNumber labName')
+      .populate('schedule.timeSlot');
+
+    if (!timetable) {
+      return res.status(404).json({ message: 'Timetable not found' });
+    }
+
+    const filteredSchedule = timetable.schedule.filter((entry) => (
+      WEEKDAYS.includes(entry.day) && isBESection(entry.section)
+    ));
+
+    res.json({
+      _id: timetable._id,
+      name: timetable.name,
+      semester: timetable.semester,
+      academicYear: timetable.academicYear,
+      status: timetable.status,
+      schedule: filteredSchedule
+    });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid timetable ID' });
+    }
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get BE classes by specific weekday (Monday-Friday) for timetable ID
+router.get('/:id/BE/:day', async (req, res) => {
+  try {
+    const normalizedDay = normalizeWeekday(req.params.day);
+    if (!normalizedDay) {
+      return res.status(400).json({ message: 'Invalid day. Use Monday to Friday.' });
+    }
+
+    const timetable = await Timetable.findById(req.params.id)
+      .populate('sections')
+      .populate('schedule.teacher', 'name email')
+      .populate('schedule.section', 'sectionName department year semester')
+      .populate('schedule.room', 'roomNumber roomName')
+      .populate('schedule.lab', 'labNumber labName')
+      .populate('schedule.timeSlot');
+
+    if (!timetable) {
+      return res.status(404).json({ message: 'Timetable not found' });
+    }
+
+    const filteredSchedule = timetable.schedule.filter((entry) => (
+      entry.day === normalizedDay && isBESection(entry.section)
+    ));
+
+    res.json({
+      schedule: filteredSchedule.map((entry) => {
+        const roomOrLab = entry.room?.roomNumber || entry.room?.roomName || entry.lab?.labName || entry.lab?.labNumber || null;
+        return {
+          section: formatSectionLabel(entry.section?.sectionName),
+          subject: entry.subject?.subjectName || null,
+          teacher: entry.teacher?.name || null,
+          startTime: entry.timeSlot?.startTime || null,
+          endTime: entry.timeSlot?.endTime || null,
+          room: roomOrLab
+        };
+      })
+    });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid timetable ID' });
+    }
     res.status(500).json({ message: error.message });
   }
 });

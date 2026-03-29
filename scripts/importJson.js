@@ -11,6 +11,8 @@ const TimeSlot = require('../models/TimeSlot');
 const Registration = require('../models/Registration');
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const ROOM_NUMBER_MIN = 201;
+const ROOM_NUMBER_MAX = 230;
 const FIXED_SLOTS = [
   { startTime: '09:00', endTime: '10:00', duration: 60, slotType: 'Lecture' },
   { startTime: '10:00', endTime: '11:00', duration: 60, slotType: 'Lecture' },
@@ -95,11 +97,45 @@ async function upsertLabs(labsJson) {
 }
 
 async function upsertRoomsFromLabs(labsJson) {
+  const allRooms = await Room.find({}).select('_id roomNumber').lean();
+  const usedNumbers = new Set(
+    allRooms
+      .map((r) => Number(r.roomNumber))
+      .filter((n) => Number.isInteger(n) && n >= ROOM_NUMBER_MIN && n <= ROOM_NUMBER_MAX)
+  );
+
+  const getNextRoomNumber = () => {
+    for (let n = ROOM_NUMBER_MIN; n <= ROOM_NUMBER_MAX; n += 1) {
+      if (!usedNumbers.has(n)) {
+        usedNumbers.add(n);
+        return String(n);
+      }
+    }
+    return null;
+  };
+
   for (const [labName] of Object.entries(labsJson)) {
-    const roomNumber = labName; // treat lab name as a room code for display
-    const existing = await Room.findOne({ roomNumber });
+    const existing = await Room.findOne({ roomName: labName });
     if (!existing) {
-      await Room.create({ roomNumber, roomName: labName, capacity: 40, roomType: 'Classroom', floor: 1, building: 'Main', facilities: [] });
+      const roomNumber = getNextRoomNumber();
+      await Room.create({
+        roomNumber: roomNumber || `RM-${labName}`,
+        roomName: labName,
+        capacity: 40,
+        roomType: 'Classroom',
+        floor: 1,
+        building: 'Main',
+        facilities: []
+      });
+    } else {
+      const roomNumberAsNum = Number(existing.roomNumber);
+      const isValidNumeric = Number.isInteger(roomNumberAsNum) && roomNumberAsNum >= ROOM_NUMBER_MIN && roomNumberAsNum <= ROOM_NUMBER_MAX;
+      if (!isValidNumeric) {
+        const replacement = getNextRoomNumber();
+        if (replacement) {
+          await Room.findByIdAndUpdate(existing._id, { roomNumber: replacement });
+        }
+      }
     }
   }
 }

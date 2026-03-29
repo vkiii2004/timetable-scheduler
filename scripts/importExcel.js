@@ -10,6 +10,8 @@ const Lab = require('../models/Lab');
 const Section = require('../models/Section');
 const TimeSlot = require('../models/TimeSlot');
 const Registration = require('../models/Registration');
+const ROOM_NUMBER_MIN = 201;
+const ROOM_NUMBER_MAX = 230;
 
 function parseTimeLabel(label) {
   if (!label) return null;
@@ -119,11 +121,45 @@ async function main() {
     }
   }
 
-  // Upsert Rooms
+  // Upsert Rooms with numeric room numbers (201-230)
+  const existingRooms = await Room.find({}).select('_id roomNumber').lean();
+  const usedNumbers = new Set(
+    existingRooms
+      .map((r) => Number(r.roomNumber))
+      .filter((n) => Number.isInteger(n) && n >= ROOM_NUMBER_MIN && n <= ROOM_NUMBER_MAX)
+  );
+  const getNextRoomNumber = () => {
+    for (let n = ROOM_NUMBER_MIN; n <= ROOM_NUMBER_MAX; n += 1) {
+      if (!usedNumbers.has(n)) {
+        usedNumbers.add(n);
+        return String(n);
+      }
+    }
+    return null;
+  };
+
   for (const rn of rooms) {
-    const existing = await Room.findOne({ roomNumber: rn });
+    const existing = await Room.findOne({ roomName: rn });
     if (!existing) {
-      await Room.create({ roomNumber: rn, roomName: rn, capacity: 40, roomType: 'Classroom', floor: 1, building: 'Main', facilities: [] });
+      const roomNumber = getNextRoomNumber();
+      await Room.create({
+        roomNumber: roomNumber || `RM-${rn}`,
+        roomName: rn,
+        capacity: 40,
+        roomType: 'Classroom',
+        floor: 1,
+        building: 'Main',
+        facilities: []
+      });
+    } else {
+      const roomNumberAsNum = Number(existing.roomNumber);
+      const isValidNumeric = Number.isInteger(roomNumberAsNum) && roomNumberAsNum >= ROOM_NUMBER_MIN && roomNumberAsNum <= ROOM_NUMBER_MAX;
+      if (!isValidNumeric) {
+        const replacement = getNextRoomNumber();
+        if (replacement) {
+          await Room.findByIdAndUpdate(existing._id, { roomNumber: replacement });
+        }
+      }
     }
   }
 
