@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -29,7 +29,6 @@ import {
   Add,
   Edit,
   Delete,
-  School,
 } from '@mui/icons-material';
 import { sectionsAPI, teachersAPI } from '../services/api';
 
@@ -57,11 +56,7 @@ const Sections = () => {
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [sectionsRes, teachersRes] = await Promise.all([
         sectionsAPI.getAll(),
@@ -70,11 +65,15 @@ const Sections = () => {
       setSections(sectionsRes.data);
       setTeachers(teachersRes.data);
     } catch (error) {
-      showSnackbar('Error fetching data', 'error');
+      setSnackbar({ open: true, message: 'Error fetching data', severity: 'error' });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });

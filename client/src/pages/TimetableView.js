@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Typography, Box, Paper, Chip, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemText, ListItemIcon } from '@mui/material';
 import {
   CalendarToday,
@@ -9,7 +9,6 @@ import {
   School,
   Warning,
   CheckCircle,
-  Error,
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { timetablesAPI } from '../services/api';
@@ -22,11 +21,8 @@ const TimetableView = () => {
   const [loading, setLoading] = useState(true);
   const [conflictsOpen, setConflictsOpen] = useState(false);
 
-  useEffect(() => {
-    fetchTimetable();
-  }, [id]);
-
-  const fetchTimetable = async () => {
+  const fetchTimetable = useCallback(async () => {
+    if (!id) return;
     try {
       const response = await timetablesAPI.getById(id);
       setTimetable(response.data);
@@ -35,18 +31,11 @@ const TimetableView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  const getDaySchedule = (day) => {
-    if (!timetable) return [];
-    return timetable.schedule
-      .filter(item => item.day === day)
-      .sort((a, b) => {
-        const timeA = a.timeSlot.startTime;
-        const timeB = b.timeSlot.startTime;
-        return timeA.localeCompare(timeB);
-      });
-  };
+  useEffect(() => {
+    fetchTimetable();
+  }, [fetchTimetable]);
 
   const getConflictIcon = (type) => {
     switch (type) {
@@ -62,8 +51,6 @@ const TimetableView = () => {
         return <Warning color="error" />;
     }
   };
-
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
   const formatDate = (d) => {
     const dt = new Date(d);

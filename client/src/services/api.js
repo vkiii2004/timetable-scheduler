@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// Default: local backend. Override with REACT_APP_API_URL (e.g. on Vercel only if you expose a public API).
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
@@ -95,6 +96,10 @@ export const registrationsAPI = {
 export const timetablesAPI = {
   getAll: () => api.get('/timetables'),
   getById: (id) => api.get(`/timetables/${id}`),
+  /** BE schedule Mon–Fri (full documents; same base URL as local or env). */
+  getBE: (id) => api.get(`/timetables/${id}/BE`),
+  /** Compact { schedule: [...] } for one weekday, e.g. day = 'monday'. */
+  getBEByDay: (id, day) => api.get(`/timetables/${id}/BE/${encodeURIComponent(day)}`),
   generate: (data) => api.post('/timetables/generate', data),
   update: (id, data) => api.put(`/timetables/${id}`, data),
   delete: (id) => api.delete(`/timetables/${id}`),

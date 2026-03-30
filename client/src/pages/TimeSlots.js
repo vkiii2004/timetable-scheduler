@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -29,7 +29,6 @@ import {
   Add,
   Edit,
   Delete,
-  Schedule,
 } from '@mui/icons-material';
 import { timeSlotsAPI } from '../services/api';
 
@@ -50,20 +49,20 @@ const TimeSlots = () => {
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const slotTypes = ['Lecture', 'Lab', 'Tutorial', 'Break'];
 
-  useEffect(() => {
-    fetchTimeSlots();
-  }, []);
-
-  const fetchTimeSlots = async () => {
+  const fetchTimeSlots = useCallback(async () => {
     try {
       const response = await timeSlotsAPI.getAll();
       setTimeSlots(response.data);
     } catch (error) {
-      showSnackbar('Error fetching time slots', 'error');
+      setSnackbar({ open: true, message: 'Error fetching time slots', severity: 'error' });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchTimeSlots();
+  }, [fetchTimeSlots]);
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });

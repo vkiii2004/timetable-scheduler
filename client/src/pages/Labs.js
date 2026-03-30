@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -29,7 +29,6 @@ import {
   Add,
   Edit,
   Delete,
-  Science,
 } from '@mui/icons-material';
 import { labsAPI } from '../services/api';
 
@@ -54,20 +53,20 @@ const Labs = () => {
 
   const labTypes = ['Computer Lab', 'Physics Lab', 'Chemistry Lab', 'Biology Lab', 'Engineering Lab', 'Language Lab'];
 
-  useEffect(() => {
-    fetchLabs();
-  }, []);
-
-  const fetchLabs = async () => {
+  const fetchLabs = useCallback(async () => {
     try {
       const response = await labsAPI.getAll();
       setLabs(response.data);
     } catch (error) {
-      showSnackbar('Error fetching labs', 'error');
+      setSnackbar({ open: true, message: 'Error fetching labs', severity: 'error' });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchLabs();
+  }, [fetchLabs]);
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });

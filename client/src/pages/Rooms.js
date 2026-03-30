@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -29,7 +29,6 @@ import {
   Add,
   Edit,
   Delete,
-  MeetingRoom,
 } from '@mui/icons-material';
 import { roomsAPI } from '../services/api';
 
@@ -52,20 +51,20 @@ const Rooms = () => {
 
   const roomTypes = ['Classroom', 'Lecture Hall', 'Seminar Room', 'Conference Room'];
 
-  useEffect(() => {
-    fetchRooms();
-  }, []);
-
-  const fetchRooms = async () => {
+  const fetchRooms = useCallback(async () => {
     try {
       const response = await roomsAPI.getAll();
       setRooms(response.data);
     } catch (error) {
-      showSnackbar('Error fetching rooms', 'error');
+      setSnackbar({ open: true, message: 'Error fetching rooms', severity: 'error' });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchRooms();
+  }, [fetchRooms]);
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });

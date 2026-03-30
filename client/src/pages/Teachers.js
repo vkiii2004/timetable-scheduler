@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -20,13 +20,11 @@ import {
   Chip,
   Alert,
   Snackbar,
-  Fab,
 } from '@mui/material';
 import {
   Add,
   Edit,
   Delete,
-  People,
 } from '@mui/icons-material';
 import { teachersAPI, timeSlotsAPI } from '../services/api';
 
@@ -50,11 +48,7 @@ const Teachers = () => {
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [teachersRes, timeSlotsRes] = await Promise.all([
         teachersAPI.getAll(),
@@ -63,11 +57,15 @@ const Teachers = () => {
       setTeachers(teachersRes.data);
       setTimeSlots(timeSlotsRes.data);
     } catch (error) {
-      showSnackbar('Error fetching data', 'error');
+      setSnackbar({ open: true, message: 'Error fetching data', severity: 'error' });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -31,7 +31,6 @@ import {
   Add,
   Edit,
   Delete,
-  Assignment,
   CheckCircle,
   Cancel,
 } from '@mui/icons-material';
@@ -66,11 +65,7 @@ const Registrations = () => {
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [registrationsRes, sectionsRes, teachersRes, roomsRes, labsRes, timeSlotsRes] = await Promise.all([
         registrationsAPI.getAll(),
@@ -87,11 +82,15 @@ const Registrations = () => {
       setLabs(labsRes.data);
       setTimeSlots(timeSlotsRes.data);
     } catch (error) {
-      showSnackbar('Error fetching data', 'error');
+      setSnackbar({ open: true, message: 'Error fetching data', severity: 'error' });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });

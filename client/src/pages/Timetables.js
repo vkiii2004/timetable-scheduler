@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -20,18 +20,11 @@ import {
   Chip,
   Alert,
   Snackbar,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Checkbox,
   FormControlLabel,
 } from '@mui/material';
 import {
-  Add,
-  Edit,
   Delete,
-  CalendarToday,
   Visibility,
   Publish,
   AutoAwesome,
@@ -53,11 +46,7 @@ const Timetables = () => {
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [timetablesRes, sectionsRes] = await Promise.all([
         timetablesAPI.getAll(),
@@ -66,11 +55,15 @@ const Timetables = () => {
       setTimetables(timetablesRes.data);
       setSections(sectionsRes.data);
     } catch (error) {
-      showSnackbar('Error fetching data', 'error');
+      setSnackbar({ open: true, message: 'Error fetching data', severity: 'error' });
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const showSnackbar = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });
